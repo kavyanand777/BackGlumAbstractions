@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface Error {
-  error: string;
-}
+/**
+ * @minLength 1
+ */
+export type TransactionCategory = string;

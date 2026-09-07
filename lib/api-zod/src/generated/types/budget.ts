@@ -7,9 +7,16 @@
  */
 import type { TransactionCategory } from './transactionCategory';
 
-export interface CategoryBreakdown {
+export interface Budget {
+  id: number;
   category: TransactionCategory;
   amount: number;
-  percentage: number;
-  transactionCount: number;
+  /**
+     * @minimum 1
+     * @maximum 12
+     */
+  month: number;
+  year: number;
+  spent: number;
+  usedPercent: number;
 }

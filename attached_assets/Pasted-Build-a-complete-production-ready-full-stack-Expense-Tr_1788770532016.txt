@@ -1,0 +1,805 @@
+Build a complete production-ready full-stack Expense Tracker web application called **ExpenseFlow**.
+
+I have provided an existing HTML/CSS/JavaScript ExpenseFlow frontend as the design reference. **Use the uploaded/reference code as the visual and functional design baseline. Do not completely redesign it. Preserve its dark modern UI, layout, colors, cards, gradients, spacing, typography, login screen, dashboard structure, transaction form, summary cards, graph, transaction list, edit/delete buttons, filters, INR currency formatting, responsive behavior, and overall user experience.**
+
+The existing frontend currently stores data in localStorage and uses demo credentials. Replace those parts with a real backend, authentication system, and database.
+
+## 1. TECH STACK
+
+Use this stack:
+
+### Frontend
+
+* React.js
+* Vite
+* Tailwind CSS
+* JavaScript
+* Recharts for charts
+* Axios for API requests
+* React Router
+* Lucide React icons
+
+### Backend
+
+* Python
+* FastAPI
+* SQLAlchemy ORM
+* Pydantic
+* JWT authentication
+* bcrypt/passlib or another secure password hashing library
+* REST API architecture
+
+### Database
+
+* PostgreSQL
+
+Use environment variables for database credentials and JWT secrets.
+
+The project must work correctly inside Replit.
+
+## 2. PROJECT STRUCTURE
+
+Create a clean structure similar to:
+
+expenseflow/
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── context/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── ...
+│
+├── backend/
+│   ├── main.py
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── auth.py
+│   ├── dependencies.py
+│   ├── routers/
+│   │   ├── auth.py
+│   │   ├── transactions.py
+│   │   ├── categories.py
+│   │   └── dashboard.py
+│   ├── requirements.txt
+│   └── ...
+│
+├── .env.example
+└── README.md
+
+Keep frontend and backend properly separated.
+
+## 3. DESIGN REQUIREMENTS
+
+The existing design should be reproduced closely.
+
+### Overall theme
+
+Use the same visual style as the reference:
+
+* Dark background approximately #080b14
+* Dark cards
+* Purple-to-teal gradients
+* Rounded cards
+* Subtle borders
+* Soft shadows
+* Modern dashboard
+* White primary text
+* Muted gray secondary text
+* Teal for income
+* Red/coral for expenses
+* Purple for primary actions
+
+The existing reference uses a login card with a purple/teal gradient logo and dark glass-like styling. Preserve this visual language.
+
+### Login page
+
+Create:
+
+* ExpenseFlow logo
+* "Welcome Back"
+* "Login to manage your expenses"
+* Email/username input
+* Password input
+* Login button
+* Link to Register
+* Validation messages
+* Loading state
+
+Remove the old hardcoded:
+
+admin / 1234
+
+Do NOT use hardcoded credentials.
+
+Create a proper registration page.
+
+## 4. AUTHENTICATION
+
+Implement secure authentication.
+
+Features:
+
+* Register
+* Login
+* Logout
+* JWT access token
+* Password hashing
+* Protected routes
+* Persistent login
+* Current-user endpoint
+* Proper authentication error handling
+
+API endpoints:
+
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+
+Every user's financial data must be isolated.
+
+User A must NEVER be able to access User B's transactions.
+
+## 5. DATABASE DESIGN
+
+Create PostgreSQL tables.
+
+### users
+
+Fields:
+
+* id
+* name
+* email
+* password_hash
+* created_at
+
+Email must be unique.
+
+### categories
+
+Fields:
+
+* id
+* user_id
+* name
+* icon
+* type
+* created_at
+
+Allow categories such as:
+
+* Food
+* Travel
+* Shopping
+* Bills
+* Education
+* Entertainment
+* Salary
+* Other
+
+Users should also be able to create custom categories.
+
+### transactions
+
+Fields:
+
+* id
+* user_id
+* description
+* amount
+* type
+* category_id
+* date
+* created_at
+* updated_at
+
+type must be:
+
+expense OR income
+
+Amount must be positive.
+
+### budgets
+
+Fields:
+
+* id
+* user_id
+* category_id
+* amount
+* month
+* year
+* created_at
+
+Use proper foreign keys and indexes.
+
+## 6. TRANSACTION CRUD
+
+Implement complete CRUD functionality.
+
+Create:
+
+POST /api/transactions
+
+Read:
+
+GET /api/transactions
+
+Update:
+
+PUT /api/transactions/{id}
+
+Delete:
+
+DELETE /api/transactions/{id}
+
+The frontend should communicate with these APIs using Axios.
+
+DO NOT use localStorage as the database.
+
+Transactions must persist in PostgreSQL.
+
+## 7. DASHBOARD
+
+Recreate the reference dashboard.
+
+Top section:
+
+### Total Balance
+
+Calculate:
+
+Total Income - Total Expenses
+
+Display in INR:
+
+₹45,200.00
+
+### Total Income
+
+Calculate from database.
+
+### Total Expenses
+
+Calculate from database.
+
+All values must update automatically after adding, editing, or deleting transactions.
+
+## 8. ADD TRANSACTION FORM
+
+Keep the reference form structure.
+
+Fields:
+
+* Description
+* Amount
+* Type
+* Category
+* Date
+
+Type:
+
+* Expense
+* Income
+
+Category:
+
+* Food
+* Travel
+* Shopping
+* Bills
+* Education
+* Entertainment
+* Salary
+* Other
+
+Add proper validation.
+
+Rules:
+
+* Description required
+* Amount must be greater than 0
+* Date required
+* Valid transaction type required
+* Valid category required
+
+Show friendly toast notifications.
+
+Examples:
+
+"Transaction added successfully"
+"Transaction updated successfully"
+"Transaction deleted successfully"
+
+## 9. EDIT TRANSACTION
+
+When clicking Edit:
+
+* Populate the form
+* Change heading to "Edit Transaction"
+* Change button to "Update Transaction"
+* Allow modification
+* Save changes through backend
+* Refresh dashboard data
+
+Add a Cancel Edit button.
+
+## 10. DELETE TRANSACTION
+
+When Delete is clicked:
+
+Show confirmation dialog:
+
+"Are you sure you want to delete this transaction?"
+
+If confirmed:
+
+* Delete from PostgreSQL
+* Update UI
+* Show toast
+
+## 11. TRANSACTION LIST
+
+Recreate the reference Recent Transactions section.
+
+Each transaction should display:
+
+* Category icon
+* Description
+* Category
+* Date
+* Amount
+* Edit button
+* Delete button
+
+Income:
+
+* ₹5,000.00
+
+Expense:
+
+* ₹850.00
+
+Use teal styling for income and coral/red styling for expenses.
+
+Sort transactions by newest date first.
+
+## 12. FILTERING
+
+Add filters:
+
+* All
+* Income
+* Expense
+
+Also add:
+
+* Search by description
+* Filter by category
+* Filter by date/month
+
+Filtering should work smoothly.
+
+Prefer server-side filtering for large datasets, but client-side filtering is acceptable for small result sets.
+
+## 13. EXPENSE GRAPH
+
+The reference application contains a "Last 7 days" expense graph.
+
+Recreate this using **Recharts**.
+
+Display expense amount for each of the previous 7 days.
+
+Example:
+
+Mon ₹500
+Tue ₹800
+Wed ₹0
+Thu ₹1,200
+Fri ₹700
+Sat ₹400
+Sun ₹900
+
+Make the chart responsive.
+
+Add tooltips showing:
+
+Date
+Expense amount
+
+Use the same purple/teal visual style.
+
+## 14. ADD BETTER ANALYTICS
+
+Add an additional analytics section without destroying the original design.
+
+Create:
+
+### Expense by Category
+
+Use a donut/pie chart.
+
+Example:
+
+Food 30%
+Travel 20%
+Shopping 15%
+Bills 25%
+Other 10%
+
+### Monthly Expense Trend
+
+Show expenses for the last 6 months.
+
+### Income vs Expense
+
+Show a comparison chart.
+
+## 15. BUDGET FEATURE
+
+Add a Budget section.
+
+Users can set monthly budgets.
+
+Example:
+
+Food
+
+₹2,500 / ₹3,000
+
+83% used
+
+₹500 remaining
+
+Display a progress bar.
+
+If the user exceeds 80%:
+
+Show warning.
+
+If the user exceeds 100%:
+
+Show an alert.
+
+## 16. DASHBOARD SUMMARY API
+
+Create a backend endpoint such as:
+
+GET /api/dashboard/summary
+
+Return:
+
+{
+"balance": 45200,
+"total_income": 60000,
+"total_expenses": 14800,
+"monthly_expenses": 5200,
+"transaction_count": 25
+}
+
+Create additional API endpoints for:
+
+* category analytics
+* monthly analytics
+* 7-day analytics
+* budget information
+
+Do calculations on the backend where appropriate.
+
+## 17. CURRENCY
+
+Use Indian Rupees.
+
+Format all amounts using INR formatting.
+
+Example:
+
+₹1,250.00
+
+Use Indian number formatting.
+
+## 18. RESPONSIVE DESIGN
+
+The application must work on:
+
+* Desktop
+* Laptop
+* Tablet
+* Mobile
+
+The reference design already changes layout at smaller screen sizes. Preserve this responsive behavior.
+
+On mobile:
+
+* Cards stack vertically
+* Dashboard becomes one column
+* Transaction list remains readable
+* Buttons remain usable
+* Charts resize correctly
+* Login form fits the screen
+
+## 19. ERROR HANDLING
+
+Implement proper frontend and backend error handling.
+
+Backend should return meaningful HTTP status codes.
+
+Frontend should display friendly messages.
+
+Handle:
+
+* Invalid login
+* Duplicate email
+* Invalid transaction
+* Unauthorized request
+* Database errors
+* Network errors
+* Expired token
+* Missing transaction
+* Invalid amount
+
+Do not expose passwords or sensitive information.
+
+## 20. SECURITY
+
+Follow basic security best practices.
+
+* Hash passwords
+* Never store plain-text passwords
+* JWT authentication
+* Protect transaction APIs
+* Validate all input
+* Validate ownership before update/delete
+* Use environment variables
+* Never expose database credentials
+* Configure CORS correctly
+* Never trust user_id sent from frontend
+* Always get user identity from authenticated JWT
+
+## 21. UI/UX
+
+Add:
+
+* Loading indicators
+* Skeleton/loading states where useful
+* Toast notifications
+* Empty transaction state
+* Confirmation dialog
+* Form validation
+* Hover effects
+* Smooth transitions
+* Accessible buttons
+* Keyboard-friendly forms
+
+Use Lucide icons instead of random emoji wherever appropriate, while keeping the overall appearance similar to the reference.
+
+## 22. NAVIGATION
+
+Use React Router.
+
+Pages:
+
+/login
+/register
+/dashboard
+/transactions
+/budgets
+/analytics
+/profile
+
+The dashboard should remain the main page.
+
+If you think a simpler navigation structure fits the existing design better, keep the main dashboard visually close to the reference and add navigation without making it cluttered.
+
+## 23. PROFILE
+
+Create a simple profile section:
+
+* Name
+* Email
+* Account creation date
+* Logout
+
+Allow users to update their name.
+
+Do not allow insecure password changes without verifying the existing password.
+
+## 24. API DOCUMENTATION
+
+FastAPI should automatically provide:
+
+/docs
+
+Make sure all API routes are documented with:
+
+* Request schema
+* Response schema
+* Authentication requirements
+* Useful descriptions
+
+## 25. DATABASE INITIALIZATION
+
+Make database setup easy.
+
+Create:
+
+* database connection
+* SQLAlchemy models
+* table creation/migrations as appropriate
+* seed/default categories
+
+Do not require manually inserting records into PostgreSQL.
+
+When a new user registers, create their default categories automatically.
+
+## 26. ENVIRONMENT VARIABLES
+
+Create .env.example:
+
+DATABASE_URL=
+JWT_SECRET=
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+FRONTEND_URL=
+
+Never hardcode secrets.
+
+## 27. REPLIT REQUIREMENTS
+
+Configure the project so it runs correctly in Replit.
+
+Make sure:
+
+* Frontend starts correctly
+* Backend starts correctly
+* PostgreSQL connection works
+* Environment variables are read correctly
+* API requests work from frontend
+* Production/deployment configuration is included
+* No broken imports
+* No placeholder functions
+* No TODOs for core functionality
+
+If Replit provides a PostgreSQL database, use it.
+
+## 28. IMPORTANT DESIGN RULE
+
+The uploaded/reference ExpenseFlow HTML is the visual starting point.
+
+Preserve these important sections:
+
+1. Login
+2. ExpenseFlow header
+3. Current date
+4. Logout
+5. Total Balance card
+6. Add Transaction card
+7. Total Income card
+8. Total Expenses card
+9. Expense Overview / 7-day graph
+10. Recent Transactions
+11. Income/Expense filter
+12. Edit/Delete
+13. Toast notifications
+14. Responsive mobile layout
+
+The reference uses a dark #080b14-style background, purple/teal gradients, rounded cards and a compact finance-dashboard layout. Keep that design identity.
+
+## 29. DO NOT DO THESE THINGS
+
+Do NOT:
+
+* use localStorage for transaction persistence
+* use hardcoded admin credentials
+* create fake APIs
+* use mock transaction data as the real database
+* leave backend endpoints unfinished
+* leave database models incomplete
+* create fake login
+* expose passwords
+* put database credentials in frontend code
+* use static JSON as the database
+* remove existing major UI sections
+* replace the design with a generic template
+
+## 30. DEVELOPMENT APPROACH
+
+Build the application in stages, but complete all stages.
+
+Stage 1:
+Set up React + Vite + Tailwind.
+
+Stage 2:
+Recreate the existing ExpenseFlow UI.
+
+Stage 3:
+Set up FastAPI backend.
+
+Stage 4:
+Set up PostgreSQL and SQLAlchemy models.
+
+Stage 5:
+Implement authentication.
+
+Stage 6:
+Connect transaction CRUD to PostgreSQL.
+
+Stage 7:
+Connect dashboard calculations.
+
+Stage 8:
+Implement charts and analytics.
+
+Stage 9:
+Implement budgets.
+
+Stage 10:
+Implement validation, error handling, loading states and responsive improvements.
+
+Stage 11:
+Test the complete application.
+
+Stage 12:
+Fix all errors and verify that the complete application works.
+
+## 31. TESTING CHECKLIST
+
+Before considering the project complete, test:
+
+* Register new user
+* Login
+* Logout
+* Invalid login
+* Add income
+* Add expense
+* Edit transaction
+* Delete transaction
+* Filter transactions
+* Search transactions
+* Calculate balance
+* Calculate total income
+* Calculate total expenses
+* 7-day graph
+* Category chart
+* Monthly chart
+* Create budget
+* Budget progress
+* Budget warning
+* Mobile layout
+* Page refresh
+* Token persistence
+* Unauthorized API access
+* User data isolation
+
+Make sure refreshing the page does NOT delete data.
+
+## 32. FINAL REQUIREMENT
+
+At the end, provide a README.md containing:
+
+* Project overview
+* Features
+* Tech stack
+* Architecture
+* Folder structure
+* Database schema
+* API endpoints
+* Environment variable setup
+* Local development instructions
+* Replit setup instructions
+* Deployment instructions
+* Screenshots section placeholder
+* Future improvements
+
+Most importantly:
+
+**Build the actual working application, not just a UI mockup.**
+
+The final result must be a complete full-stack ExpenseFlow application where the React frontend communicates with the FastAPI backend and all user data is permanently stored in PostgreSQL.

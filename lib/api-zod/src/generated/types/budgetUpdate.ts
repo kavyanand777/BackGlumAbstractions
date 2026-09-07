@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface Error {
-  error: string;
+export interface BudgetUpdate {
+  /** @exclusiveMinimum 0 */
+  amount?: number;
 }

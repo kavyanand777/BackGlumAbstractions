@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface Error {
-  error: string;
-}
+export type GetSevenDayTrendParams = {
+/**
+ * @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+ */
+endDate?: string;
+};

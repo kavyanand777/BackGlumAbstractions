@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.2.0
  */
 import type { TransactionCategory } from './transactionCategory';
+import type { TransactionType } from './transactionType';
 
-export interface CategoryBreakdown {
-  category: TransactionCategory;
-  amount: number;
-  percentage: number;
-  transactionCount: number;
+export interface CategoryInput {
+  name: TransactionCategory;
+  icon: string;
+  type: TransactionType;
 }

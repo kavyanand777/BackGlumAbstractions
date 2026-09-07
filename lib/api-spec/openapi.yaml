@@ -1,28 +1,23 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 0.2.0
+  description: ExpenseFlow finance API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
   - name: expenses
-    description: Expense records
   - name: dashboard
-    description: Spending summaries and trends
   - name: categories
-    description: Expense categories
+  - name: budgets
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -34,51 +29,60 @@ paths:
     get:
       operationId: listExpenses
       tags: [expenses]
-      summary: List expenses
+      summary: List the current user's transactions
       parameters:
         - $ref: "#/components/parameters/FromDate"
         - $ref: "#/components/parameters/ToDate"
+        - name: month
+          in: query
+          schema:
+            type: string
+            pattern: "^[0-9]{4}-[0-9]{2}$"
         - name: category
           in: query
           schema:
-            $ref: "#/components/schemas/ExpenseCategory"
+            $ref: "#/components/schemas/TransactionCategory"
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/TransactionType"
         - name: search
           in: query
           schema:
             type: string
       responses:
         "200":
-          description: Expense records
+          description: Transaction records
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Expense"
+                  $ref: "#/components/schemas/Transaction"
     post:
       operationId: createExpense
       tags: [expenses]
-      summary: Create an expense
+      summary: Create a transaction
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ExpenseInput"
+              $ref: "#/components/schemas/TransactionInput"
       responses:
         "201":
-          description: Created expense
+          description: Created transaction
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                $ref: "#/components/schemas/Transaction"
         "400":
           $ref: "#/components/responses/BadRequest"
   /expenses/recent:
     get:
       operationId: listRecentExpenses
       tags: [expenses]
-      summary: List recent expenses
+      summary: List recent transactions
       parameters:
         - name: limit
           in: query
@@ -89,18 +93,18 @@ paths:
             default: 5
       responses:
         "200":
-          description: Recent expense records
+          description: Recent transaction records
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Expense"
+                  $ref: "#/components/schemas/Transaction"
   /expenses/{id}:
     patch:
       operationId: updateExpense
       tags: [expenses]
-      summary: Update an expense
+      summary: Update a transaction
       parameters:
         - $ref: "#/components/parameters/ExpenseId"
       requestBody:
@@ -108,14 +112,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ExpenseUpdate"
+              $ref: "#/components/schemas/TransactionUpdate"
       responses:
         "200":
-          description: Updated expense
+          description: Updated transaction
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Expense"
+                $ref: "#/components/schemas/Transaction"
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
@@ -123,26 +127,24 @@ paths:
     delete:
       operationId: deleteExpense
       tags: [expenses]
-      summary: Delete an expense
+      summary: Delete a transaction
       parameters:
         - $ref: "#/components/parameters/ExpenseId"
       responses:
         "204":
-          description: Expense deleted
-        "400":
-          $ref: "#/components/responses/BadRequest"
+          description: Transaction deleted
         "404":
           $ref: "#/components/responses/NotFound"
   /dashboard/summary:
     get:
       operationId: getDashboardSummary
       tags: [dashboard]
-      summary: Get dashboard summary
+      summary: Get balance and monthly summary
       parameters:
         - $ref: "#/components/parameters/Month"
       responses:
         "200":
-          description: Monthly spending summary
+          description: Dashboard summary
           content:
             application/json:
               schema:
@@ -151,12 +153,12 @@ paths:
     get:
       operationId: getCategoryBreakdown
       tags: [dashboard]
-      summary: Get spending by category
+      summary: Get expense totals by category
       parameters:
         - $ref: "#/components/parameters/Month"
       responses:
         "200":
-          description: Category spending breakdown
+          description: Category breakdown
           content:
             application/json:
               schema:
@@ -167,7 +169,7 @@ paths:
     get:
       operationId: getMonthlyTrend
       tags: [dashboard]
-      summary: Get monthly spending trend
+      summary: Get expense trend for recent months
       parameters:
         - name: months
           in: query
@@ -178,18 +180,60 @@ paths:
             default: 6
       responses:
         "200":
-          description: Monthly spending trend
+          description: Monthly trend
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/TrendPoint"
+  /dashboard/seven-day:
+    get:
+      operationId: getSevenDayTrend
+      tags: [dashboard]
+      summary: Get daily expense totals for the last seven days
+      parameters:
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      responses:
+        "200":
+          description: Seven-day expense trend
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SevenDayPoint"
+  /dashboard/income-expense:
+    get:
+      operationId: getIncomeExpenseTrend
+      tags: [dashboard]
+      summary: Get income versus expense totals
+      parameters:
+        - name: months
+          in: query
+          schema:
+            type: integer
+            minimum: 3
+            maximum: 12
+            default: 6
+      responses:
+        "200":
+          description: Income versus expense trend
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncomeExpensePoint"
   /categories:
     get:
       operationId: listCategories
       tags: [categories]
-      summary: List expense categories
+      summary: List the current user's categories
       responses:
         "200":
           description: Available categories
@@ -199,9 +243,100 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a custom category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Created category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+  /budgets:
+    get:
+      operationId: listBudgets
+      tags: [budgets]
+      summary: List budgets for a month
+      parameters:
+        - $ref: "#/components/parameters/Month"
+      responses:
+        "200":
+          description: Budgets with current usage
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Budget"
+    post:
+      operationId: createBudget
+      tags: [budgets]
+      summary: Create or replace a monthly budget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetInput"
+      responses:
+        "201":
+          description: Created budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Budget"
+  /budgets/{id}:
+    patch:
+      operationId: updateBudget
+      tags: [budgets]
+      summary: Update a budget
+      parameters:
+        - $ref: "#/components/parameters/BudgetId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetUpdate"
+      responses:
+        "200":
+          description: Updated budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Budget"
+    delete:
+      operationId: deleteBudget
+      tags: [budgets]
+      summary: Delete a budget
+      parameters:
+        - $ref: "#/components/parameters/BudgetId"
+      responses:
+        "204":
+          description: Budget deleted
 components:
+  securitySchemes:
+    clerkSession:
+      type: apiKey
+      in: cookie
+      name: __session
   parameters:
     ExpenseId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    BudgetId:
       name: id
       in: path
       required: true
@@ -243,41 +378,22 @@ components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
-    ExpenseCategory:
+    TransactionType:
       type: string
-      enum:
-        - Food
-        - Transport
-        - Shopping
-        - Bills
-        - Entertainment
-        - Health
-        - Travel
-        - Other
+      enum: [income, expense]
+    TransactionCategory:
+      type: string
+      minLength: 1
     PaymentMethod:
       type: string
-      enum:
-        - Card
-        - Cash
-        - Bank transfer
-        - UPI
-    Expense:
+      enum: [Card, Cash, Bank transfer, UPI]
+    Transaction:
       type: object
-      required:
-        - id
-        - amount
-        - description
-        - merchant
-        - category
-        - date
-        - paymentMethod
-        - notes
-        - createdAt
+      required: [id, amount, description, type, category, date, paymentMethod, notes, createdAt]
       properties:
         id:
           type: integer
@@ -288,8 +404,10 @@ components:
           type: string
         merchant:
           type: string
+        type:
+          $ref: "#/components/schemas/TransactionType"
         category:
-          $ref: "#/components/schemas/ExpenseCategory"
+          $ref: "#/components/schemas/TransactionCategory"
         date:
           type: string
           pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
@@ -300,15 +418,9 @@ components:
         createdAt:
           type: string
           format: date-time
-    ExpenseInput:
+    TransactionInput:
       type: object
-      required:
-        - amount
-        - description
-        - merchant
-        - category
-        - date
-        - paymentMethod
+      required: [amount, description, type, category, date]
       properties:
         amount:
           type: number
@@ -319,9 +431,10 @@ components:
           minLength: 1
         merchant:
           type: string
-          minLength: 1
+        type:
+          $ref: "#/components/schemas/TransactionType"
         category:
-          $ref: "#/components/schemas/ExpenseCategory"
+          $ref: "#/components/schemas/TransactionCategory"
         date:
           type: string
           pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
@@ -329,7 +442,7 @@ components:
           $ref: "#/components/schemas/PaymentMethod"
         notes:
           type: ["string", "null"]
-    ExpenseUpdate:
+    TransactionUpdate:
       type: object
       properties:
         amount:
@@ -341,9 +454,10 @@ components:
           minLength: 1
         merchant:
           type: string
-          minLength: 1
+        type:
+          $ref: "#/components/schemas/TransactionType"
         category:
-          $ref: "#/components/schemas/ExpenseCategory"
+          $ref: "#/components/schemas/TransactionCategory"
         date:
           type: string
           pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
@@ -353,27 +467,32 @@ components:
           type: ["string", "null"]
     Category:
       type: object
-      required:
-        - name
-        - color
-        - icon
+      required: [id, name, icon, type]
       properties:
+        id:
+          type: integer
         name:
-          $ref: "#/components/schemas/ExpenseCategory"
-        color:
-          type: string
+          $ref: "#/components/schemas/TransactionCategory"
         icon:
           type: string
+        type:
+          $ref: "#/components/schemas/TransactionType"
+    CategoryInput:
+      type: object
+      required: [name, icon, type]
+      properties:
+        name:
+          $ref: "#/components/schemas/TransactionCategory"
+        icon:
+          type: string
+        type:
+          $ref: "#/components/schemas/TransactionType"
     CategoryBreakdown:
       type: object
-      required:
-        - category
-        - amount
-        - percentage
-        - transactionCount
+      required: [category, amount, percentage, transactionCount]
       properties:
         category:
-          $ref: "#/components/schemas/ExpenseCategory"
+          $ref: "#/components/schemas/TransactionCategory"
         amount:
           type: number
           format: double
@@ -384,10 +503,7 @@ components:
           type: integer
     TrendPoint:
       type: object
-      required:
-        - month
-        - label
-        - amount
+      required: [month, label, amount]
       properties:
         month:
           type: string
@@ -397,46 +513,118 @@ components:
         amount:
           type: number
           format: double
-    DashboardSummary:
+    SevenDayPoint:
       type: object
-      required:
-        - month
-        - totalSpent
-        - transactionCount
-        - averageTransaction
-        - budget
-        - budgetUsedPercent
-        - changeFromPreviousMonth
-        - topCategory
+      required: [date, label, amount]
+      properties:
+        date:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        label:
+          type: string
+        amount:
+          type: number
+          format: double
+    IncomeExpensePoint:
+      type: object
+      required: [month, label, income, expense]
       properties:
         month:
           type: string
           pattern: "^[0-9]{4}-[0-9]{2}$"
-        totalSpent:
+        label:
+          type: string
+        income:
+          type: number
+          format: double
+        expense:
+          type: number
+          format: double
+    DashboardSummary:
+      type: object
+      required:
+        - month
+        - balance
+        - totalIncome
+        - totalExpenses
+        - monthlyExpenses
+        - transactionCount
+        - budget
+        - budgetUsedPercent
+      properties:
+        month:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}$"
+        balance:
+          type: number
+          format: double
+        totalIncome:
+          type: number
+          format: double
+        totalExpenses:
+          type: number
+          format: double
+        monthlyExpenses:
           type: number
           format: double
         transactionCount:
           type: integer
-        averageTransaction:
-          type: number
-          format: double
         budget:
           type: number
           format: double
         budgetUsedPercent:
           type: number
           format: double
-        changeFromPreviousMonth:
+    Budget:
+      type: object
+      required: [id, category, amount, month, year, spent, usedPercent]
+      properties:
+        id:
+          type: integer
+        category:
+          $ref: "#/components/schemas/TransactionCategory"
+        amount:
           type: number
           format: double
-        topCategory:
-          type: ["string", "null"]
-          $ref: "#/components/schemas/ExpenseCategory"
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+        spent:
+          type: number
+          format: double
+        usedPercent:
+          type: number
+          format: double
+    BudgetInput:
+      type: object
+      required: [category, amount, month, year]
+      properties:
+        category:
+          $ref: "#/components/schemas/TransactionCategory"
+        amount:
+          type: number
+          format: double
+          exclusiveMinimum: 0
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+          minimum: 2000
+    BudgetUpdate:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          exclusiveMinimum: 0
     Error:
       type: object
-      required:
-        - error
+      required: [error]
       properties:
         error:
           type: string
-

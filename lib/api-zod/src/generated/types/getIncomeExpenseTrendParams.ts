@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface Error {
-  error: string;
-}
+export type GetIncomeExpenseTrendParams = {
+/**
+ * @minimum 3
+ * @maximum 12
+ */
+months?: number;
+};

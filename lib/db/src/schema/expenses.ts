@@ -12,12 +12,16 @@ import { z } from "zod/v4";
 
 export const expensesTable = pgTable("expenses", {
   id: serial("id").primaryKey(),
+  userId: text("user_id").notNull().default("legacy"),
   amount: doublePrecision("amount").notNull(),
   description: text("description").notNull(),
-  merchant: text("merchant").notNull(),
+  merchant: text("merchant").notNull().default("Personal"),
+  type: varchar("type", { length: 16 }).notNull().default("expense"),
   category: varchar("category", { length: 32 }).notNull(),
   date: date("date", { mode: "string" }).notNull(),
-  paymentMethod: varchar("payment_method", { length: 32 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 32 })
+    .notNull()
+    .default("Card"),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

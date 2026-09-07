@@ -6,9 +6,10 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export interface TrendPoint {
+export interface IncomeExpensePoint {
   /** @pattern ^[0-9]{4}-[0-9]{2}$ */
   month: string;
   label: string;
-  amount: number;
+  income: number;
+  expense: number;
 }

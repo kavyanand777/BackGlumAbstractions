@@ -5,11 +5,11 @@
  * ExpenseFlow finance API
  * OpenAPI spec version: 0.2.0
  */
+import type { MonthParameter } from './monthParameter';
 
-export type ListRecentExpensesParams = {
+export type ListBudgetsParams = {
 /**
- * @minimum 1
- * @maximum 20
+ * @pattern ^[0-9]{4}-[0-9]{2}$
  */
-limit?: number;
+month: MonthParameter;
 };

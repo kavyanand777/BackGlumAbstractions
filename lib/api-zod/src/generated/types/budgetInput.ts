@@ -7,9 +7,15 @@
  */
 import type { TransactionCategory } from './transactionCategory';
 
-export interface CategoryBreakdown {
+export interface BudgetInput {
   category: TransactionCategory;
+  /** @exclusiveMinimum 0 */
   amount: number;
-  percentage: number;
-  transactionCount: number;
+  /**
+     * @minimum 1
+     * @maximum 12
+     */
+  month: number;
+  /** @minimum 2000 */
+  year: number;
 }
