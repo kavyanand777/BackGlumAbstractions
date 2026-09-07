@@ -1,0 +1,1 @@
+- [Calendar date contracts](calendar-date-contracts.md) — keep user-entered calendar dates as YYYY-MM-DD strings across OpenAPI and Drizzle.

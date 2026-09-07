@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Expense Tracker"
+description = "A responsive expense tracking website for recording spending, organizing transactions by category, and understanding personal finances through clear totals and trends."
+version = "1.0.0"
+id = "artifacts/expense-tracker"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25762
+
+[services.development]
+run = "pnpm --filter @workspace/expense-tracker run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/expense-tracker", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/expense-tracker/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25762"
+BASE_PATH = "/"
